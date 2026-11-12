@@ -1,2 +1,29 @@
 .DS_Store
 .test.aux
+
+# OCaml compiled files
+*.cmi
+*.cmo
+*.cmx
+*.cmxa
+*.cmxs
+*.cma
+*.a
+*.o
+
+# OCaml toplevel / debug
+*.annot
+*.cmt
+*.cmti
+*.byte
+*.native
+
+# Build directories
+_build/
+_opam/
+
+# Dune / package manager metadata generated locally
+.merlin
+
+# Project executable
+programme
