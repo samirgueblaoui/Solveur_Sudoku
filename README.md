@@ -1,6 +1,6 @@
-# Solveur de Sudoku en OCaml
+# Solveur de Sudoku
 
-Ce projet contient un petit solveur de Sudoku ecrit en **OCaml**.
+Ce projet contient un solveur de Sudoku ecrit en **OCaml**.
 Le programme manipule une grille 9x9, elimine les valeurs impossibles a partir des contraintes classiques du Sudoku, puis affiche la grille resolue dans le terminal.
 
 Le fichier principal du projet est [Sudoku.ml](/Users/samirgueblaoui/Desktop/Ocaml2/Ocaml/Sudoku.ml).
@@ -23,7 +23,6 @@ Cette operation est repetee jusqu'a stabilisation de la grille, ou jusqu'a attei
 ## Contenu du projet
 
 - [Sudoku.ml](/Users/samirgueblaoui/Desktop/Ocaml2/Ocaml/Sudoku.ml) : code source principal
-- [Sujet.pdf](/Users/samirgueblaoui/Desktop/Ocaml2/Ocaml/Sujet.pdf) : enonce du projet
 - [.gitignore](/Users/samirgueblaoui/Desktop/Ocaml2/Ocaml/.gitignore) : fichiers generes ignores par Git
 
 ## Prerequis
@@ -52,10 +51,33 @@ Une fois compile :
 ./programme
 ```
 
+Entrez ensuite les 9 lignes de votre grille. Chaque ligne doit contenir
+9 chiffres : `1` a `9` pour les cases connues, `0` ou `.` pour les cases vides.
+Les espaces sont facultatifs. Par exemple, vous pouvez saisir ou coller :
+
+```text
+100830002
+570001000
+000509064
+704008590
+003010400
+051400306
+360704000
+000600079
+800052003
+```
+
+Une ligne mal formee ou contenant un doublon dans une ligne, une colonne
+ou un carre 3x3 est redemandee.
+
+Le solveur utilise l'elimination de candidats, sans recherche par essais.
+Si cela ne suffit pas, il affiche une resolution partielle avec `0` pour les
+cases encore indeterminees. Une contradiction detectee est signalee.
+
 ## Exemple de sortie
 
 ```text
-Grille test resolue :
+Grille resolue :
 1 4 9 8 3 6 7 5 2
 5 7 6 2 4 1 9 3 8
 2 3 8 5 7 9 1 6 4
@@ -78,15 +100,3 @@ Le programme est organise autour de quelques idees simples :
 - `enleve_sur` applique cette reduction a toute la grille
 - `solve_grid` repete le processus jusqu'a stabilisation
 
-## Limites
-
-Ce solveur repose uniquement sur l'elimination de candidats.
-Il fonctionne bien pour des grilles compatibles avec cette methode, mais il ne gere pas les cas plus complexes demandant :
-
-- du backtracking
-- des heuristiques plus avancees
-- une exploration recursive des possibilites
-
-## Auteur
-
-Projet OCaml de resolution de Sudoku.

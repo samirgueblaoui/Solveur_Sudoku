@@ -30,8 +30,8 @@ else ( (i - (i mod 3) + 1) , (3+((n-1) mod 3))))));;
 
 
 let print_grille_aux = fun l -> match l with
-|[] ->0
-|t::q -> t ;; 
+|[n] -> n
+|_ -> 0 ;;
 
 let rec print_grille_aux2 = fun l -> match l with 
 |[] -> ()
@@ -129,8 +129,76 @@ let rec solve_loop = fun g -> fun n ->
 
 let solve_grid = fun g -> solve_loop g 100;;
 
+(* Une ligne contient neuf chiffres, avec ou sans espaces. *)
+let parse_ligne texte =
+  let rec lire index cases =
+    if index = String.length texte then
+      if List.length cases = 9 then Ok (List.rev cases)
+      else Error "Il faut exactement 9 cases sur cette ligne."
+    else
+      match texte.[index] with
+      | ' ' | '\t' | '\r' -> lire (index + 1) cases
+      | '0' | '.' -> lire (index + 1) ([] :: cases)
+      | '1' .. '9' as chiffre ->
+          lire (index + 1) ([Char.code chiffre - Char.code '0'] :: cases)
+      | _ -> Error "Utilisez les chiffres de 1 a 9, et 0 ou . pour une case vide."
+  in
+  lire 0 [];;
+
+(* Accepte aussi une grille partielle pendant la saisie. *)
+let grille_coherente grille =
+  let cases = List.concat (List.mapi (fun i ligne ->
+    List.mapi (fun j case -> (i, j, case)) ligne) grille) in
+  let rec verifier connues = function
+    | [] -> true
+    | (i, j, [valeur]) :: suite ->
+        let conflit = List.exists (fun (l, c, autre) ->
+          valeur = autre &&
+          (i = l || j = c || (i / 3 = l / 3 && j / 3 = c / 3))) connues in
+        not conflit && verifier ((i, j, valeur) :: connues) suite
+    | _ :: suite -> verifier connues suite
+  in
+  verifier [] cases;;
+
+let lire_grille () =
+  let rec lire numero lignes =
+    if numero = 10 then lignes
+    else begin
+      Printf.printf "Ligne %d/9 : %!" numero;
+      match parse_ligne (read_line ()) with
+      | Error message ->
+          print_endline message;
+          lire numero lignes
+      | Ok ligne ->
+          let grille = lignes @ [ligne] in
+          if grille_coherente grille then lire (numero + 1) grille
+          else begin
+            print_endline "Doublon dans une ligne, une colonne ou un carre 3x3. Recommencez cette ligne.";
+            lire numero lignes
+          end
+    end
+  in
+  lire 1 [];;
+
 let () =
-  print_endline "Grille test resolue :";
-  print_grille (solve_grid grille_test);;
+  print_endline "Entrez votre grille de Sudoku, une ligne a la fois.";
+  print_endline "Utilisez 1 a 9 et 0 ou . pour les cases vides (espaces facultatifs).";
+  try
+    let grille = build_grille (lire_grille ()) in
+    let resultat = solve_grid grille in
+    if not (grille_coherente resultat) ||
+       List.exists (List.exists (fun case -> case = [])) resultat then begin
+      print_endline "Cette grille est impossible : une contradiction a ete detectee.";
+      exit 1
+    end else begin
+      if List.for_all (List.for_all (fun case -> List.length case = 1)) resultat then
+        print_endline "Grille resolue :"
+      else
+        print_endline "Resolution partielle : 0 indique une case encore indeterminee.";
+      print_grille resultat
+    end
+  with End_of_file ->
+    prerr_endline "\nSaisie interrompue : les 9 lignes de la grille sont necessaires.";
+    exit 1;;
 
 
